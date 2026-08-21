@@ -2,7 +2,7 @@
 
 ## Installation
 
-git clone https://github.com/lolijslager/PuriPhage.git
+git clone https://github.com/LOlijslager/PuriPhage.git
 
 cd PuriPhage
 
