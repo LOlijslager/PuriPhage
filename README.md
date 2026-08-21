@@ -22,8 +22,6 @@ cd PuriPhage
 conda env create -f PuriPhage.yml
 conda activate PuriPhage
 pip install -e .
-
-
 ```
 
 To run the assembly part of the pipeline, you will need the viralFlye reference database, which can be downloaded via:
