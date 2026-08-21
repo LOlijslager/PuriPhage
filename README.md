@@ -30,11 +30,13 @@ wget http://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam34.0/Pfam-A.hmm.gz
 ```
 
 ## Verifying installation and example usage.
-Navigate to the example_data folder.
 ```
-
+cd example_data
+conda activate PuriPhage
+PuriPhage --input example_data --sample-metadata example_sample_data.tsv
+conda deactivate PuriPhage
 ```
-
+In example_data, there will now be a folder named "output", with subdirectories: "assemblies", "logs", and "reports". If everything is working as it should, de Reports folder will match the output in "example_reports".
 
 ## Running PuriPhage
 ```
