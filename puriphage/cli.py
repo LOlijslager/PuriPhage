@@ -12,7 +12,13 @@ import argparse
 
 from run_pipeline import run_pipeline
 
+from pathlib import Path
 
+REPO_DIR = Path(__file__).resolve().parent.parent
+
+DEFAULT_REFERENCES = (
+    REPO_DIR / "references"
+)
 
 @dataclass
 class PipelineConfig:
@@ -130,11 +136,11 @@ def parse_arguments():
 
     parser.add_argument(
         "--references",
-        default="input_sequences",
+        default=str(DEFAULT_REFERENCES),
         help=(
         "Reference sequence directory containing 'Phage' "
         " 'Host' and 'Prophage' subdirectories with " 
-        " FASTA files (default: input_sequences )"
+        " FASTA files (default: reference_data )"
         )
     )
 

@@ -19,23 +19,19 @@ from .read_preprocessing import preprocess_reads
 from .logging_utils import setup_logging
 
 from .make_viralFlye_assembly import (
-##    run_metaflye,
-##    get_assemblies_of_interest,
     make_viralFlye_assemblies
 )
 
-from run_blast import (
-    .create_reference_database,
-    .create_assembly_database,
-    .run_blast_best_hit,
+from .run_blast import (
+    create_reference_database,
+    create_assembly_database,
+    run_blast_best_hit,
 )
 
-from analyse_results import (
-    .count_hits,
-##    analyse_best_phage, #TODO: are these still being used somwhere?
-    .process_expected_or_best_phage,
-##    investigate_input_phage,
-    .filter_file_by_read_id
+from .analyse_results import (
+    count_hits,
+    process_expected_or_best_phage,
+    filter_file_by_read_id
 )
 
 from .make_report import (

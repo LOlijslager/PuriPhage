@@ -10,7 +10,7 @@
 source ~/.bashrc
 conda activate purity_pipeline
 
-INPUT_ROOT="/path/to/input_data"
+INPUT_ROOT="/example_data"
 
 SAMPLE_DIRS=("${INPUT_ROOT}"/*/)
 

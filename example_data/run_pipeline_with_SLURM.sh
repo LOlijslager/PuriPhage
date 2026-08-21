@@ -11,7 +11,7 @@ source ~/.bashrc
 conda activate purity_pipeline
 
 python PuriPhage.py \
-    --input /input_data/ \
+    --input /example_data/barcode17 \
     --sample-metadata sample_data.tsv \
     --viralflye-hmm-db Pfam-A.hmm.gz \
     --threads 8

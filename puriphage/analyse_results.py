@@ -273,36 +273,6 @@ def determine_mobilised_prophages(
         )
     
     return prophage_mobilised
-                
-def analyse_best_phage(
-    suspected_phage_numbers,
-    phage_name,
-    phage_length,
-    filtered_read_total,
-):
-    """
-    Calculate coverage and abundance statistics
-    for a phage of interest.
-    """
-
-    reads_found = suspected_phage_numbers[1]
-    bp_found = suspected_phage_numbers[2]
-
-    read_percentage = (
-        100 * reads_found / filtered_read_total
-        if filtered_read_total > 0
-        else 0
-    )
-
-    coverage = int(bp_found / phage_length)
-
-    return [
-        phage_name,
-        str(reads_found),
-        str(bp_found),
-        f"{read_percentage:.1f}",
-        str(coverage),
-    ]
 
 
 def process_expected_or_best_phage(
@@ -374,40 +344,6 @@ def process_expected_or_best_phage(
 
     with open(all_results_file, "a") as file:
         file.writelines(lines)
-
-    return best_result
-
-
-def investigate_input_phage(
-    blast_results,
-    input_phage,
-    assembly_length,
-):
-    """
-    Determine how well the expected phage
-    matches an assembly.
-
-    Returns the expected phage name even when
-    no matching BLAST hit is present so that
-    downstream reporting remains consistent.
-    """
-
-    best_result = {
-        "hit_id": input_phage,
-        "percent_identity": 0,
-        "residues_mismatched": assembly_length,
-    }
-
-    if not input_phage:
-        return best_result
-
-    for results in blast_results.values():
-
-        for result in results[1:]:
-
-            if result["hit_id"] == input_phage:
-                best_result = result.copy()
-                best_result["hit_id"] = input_phage
 
     return best_result
 
