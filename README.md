@@ -16,11 +16,14 @@ Install PuriPhage using the following commands:
 
 ```
 git clone https://github.com/LOlijslager/PuriPhage.git
+
+# Install Puriphage
 cd PuriPhage
 conda env create -f PuriPhage.yml
 conda activate PuriPhage
-pip install .
-conda deactivate PuriPhage
+pip install -e .
+
+
 ```
 
 To run the assembly part of the pipeline, you will need the viralFlye reference database, which can be downloaded via:
@@ -28,8 +31,18 @@ To run the assembly part of the pipeline, you will need the viralFlye reference 
 wget http://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam34.0/Pfam-A.hmm.gz
 ```
 
-## Running PuriPhage, examples
+## Verifying installation and example usage.
+Navigate to the example_data folder.
 ```
+
+```
+
+
+## Running PuriPhage
+```
+# Before each use:
+conda activate PuriPhage
+
 # Basic command
 PuriPhage --input input_reads
 
@@ -41,8 +54,14 @@ PuriPhage --input input_reads --mode assembly
 
 # Check only the purity of the sample
 PuriPhage --input input_reads --mode purity
+
+#After each use:
+conda deactivate PuriPhage
 ```
-Usage of the sample_data.tsv is optional. If it is excluded, the code will determine which DNA element from the reference database best describes the data and uses that for comparison. If your sample is included in sample_data.tsv, 
+Some notes: 
+- Usage of the sample_data.tsv is optional. If it is excluded, the code will determine which DNA element from the reference database best describes the data and uses that for comparison, and all reads matching to any Host will be considered Host DNA. If your sample is included in sample_data.tsv (matching the name of a fasta file in the reference database), it will use that one for comparison instead.
+- To conserve processing time, the creation of an assembly will be skipped if a completed assembly is already found in the assembly dir from a previous run.
+- In case you're working with SLURM, there are some example files in the example_dir as well.
 
 ## Interpreting output
 
