@@ -1,0 +1,25 @@
+Phage purification pipeline
+Run date	2026-08-21 13:44:51.231930
+
+Configuration
+-------------
+input_path	example_data
+output_dir	output
+reference_sequences	/hpc/dla_mm/lolijslager/data/PuriPhage/reference_data
+sample_metadata	example_sample_data.tsv
+blast_exe	blastn
+makeblastdb_exe	makeblastdb
+viralflye_hmm_db	/hpc/dla_mm/lolijslager/data/PuriPhage/Pfam-A.hmm.gz
+viralflye_completeness	0.01
+min_read_length	1000
+min_qscore	20
+min_percent_identity	98
+terminal_trim_bp	100
+enable_barcode_filtering	True
+enable_downsampling	False
+export_unmappable_reads	False
+target_bases	30000000
+mode	full
+threads	1
+troubleshooting	False
+delete_old_files	False

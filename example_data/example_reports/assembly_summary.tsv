@@ -1,0 +1,2 @@
+sample_name	number_of_reads_used	number_of_bp_used	assembly_name	assembly_length	assembly_coverage	comparison_phage	comparison_phage_length	sequence_identity	residues_mismatched
+barcode17	6501	19798808	barcode17_circassembly_1	66223	302	vB_PaeM_FBPa12	66223	100.00	0

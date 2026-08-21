@@ -1,0 +1,2 @@
+sample	total_reads	mapped_reads	mapped_bp	compared_phage	phage_reads	phage_bp	%phage_reads	%host_reads	%unmappable_reads	%phage_bp	%host_bp	%unmappable_bp	coverage	number_of_mobilised_prophages
+barcode17	7483	6501	18498608	barcode17_circassembly_1	6354	18114441	97.7	0.1	2.2	97.9	0.0	2.0	273.54	0

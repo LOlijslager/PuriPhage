@@ -10,15 +10,19 @@ from dataclasses import dataclass
 from datetime import datetime
 import argparse
 
-from run_pipeline import run_pipeline
+from .run_pipeline import run_pipeline
 
 from pathlib import Path
 
 REPO_DIR = Path(__file__).resolve().parent.parent
 
 DEFAULT_REFERENCES = (
-    REPO_DIR / "references"
+    REPO_DIR / "reference_data"
 )
+DEFAULT_PFAM = (
+    REPO_DIR / "Pfam-A.hmm.gz"
+)
+
 
 @dataclass
 class PipelineConfig:
@@ -169,7 +173,11 @@ def parse_arguments():
 
     parser.add_argument(
         "--viralflye-hmm-db",
-        help="Path to viralFlye HMM database"
+        default=str(DEFAULT_PFAM),
+        help=(
+            "Path to the Pfam HMM database "
+            f"(default: {DEFAULT_PFAM})"
+        )
     )
 
     #

@@ -8,9 +8,8 @@ version = "0.1.0"
 description = "Pipeline for phage assembly and purity evaluation"
 requires-python = ">=3.12"
 
-dependencies = [
-"biopython",
-]
-
 [project.scripts]
 PuriPhage = "puriphage.cli:main"
+
+[tool.setuptools]
+packages = ["puriphage"]
