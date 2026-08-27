@@ -18,4 +18,4 @@ INPUT_DIR="${SAMPLE_DIRS[$SLURM_ARRAY_TASK_ID]}"
 
 echo "Processing: ${INPUT_DIR}"
 
-PuriPhage.py --input "${INPUT_DIR}" --sample-metadata example_sample_data.tsv
+PuriPhage --input "${INPUT_DIR}" --sample-metadata example_sample_data.tsv
