@@ -28,6 +28,7 @@ To run the assembly part of the pipeline, you will need the viralFlye reference 
 ```
 wget http://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam34.0/Pfam-A.hmm.gz
 ```
+PuriPhage will by default look for this file in the PuriPhage folder, so if you download it there, you will not need to specify where it is located later on.
 
 ## Verifying installation and example usage.
 ```
