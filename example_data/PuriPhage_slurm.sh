@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phage_pipeline
+#SBATCH --job-name=PuriPhage
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=72:00:00
