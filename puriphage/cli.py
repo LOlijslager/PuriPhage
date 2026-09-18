@@ -28,6 +28,8 @@ DEFAULT_PFAM = (
 
 @dataclass
 class PipelineConfig:
+    
+    version: str
 
     #
     # Input
