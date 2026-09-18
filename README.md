@@ -48,7 +48,7 @@ conda activate PuriPhage
 PuriPhage --input input_reads
 
 # Basic command extended
-PuriPhage --input input_reads --sample-metadata sample_data.tsv --viralflye-hmm-db path/to/Pfam-A.hmm.gz --references references  --output results --mode full
+PuriPhage --input input_reads --sample-metadata sample_data.tsv --viralflye-hmm-db /path/to/Pfam-A.hmm.gz --references references  --output results --mode full
 
 # Make only the assembly
 PuriPhage --input input_reads --mode assembly
