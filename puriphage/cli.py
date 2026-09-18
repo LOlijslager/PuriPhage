@@ -11,6 +11,8 @@ from datetime import datetime
 import argparse
 
 from .run_pipeline import run_pipeline
+from puriphage import __version__
+
 
 from pathlib import Path
 
@@ -63,7 +65,7 @@ class PipelineConfig:
     enable_barcode_filtering: bool = True
 
     enable_downsampling: bool = False
-    export_unmappable_reads: bool = False
+    export_unmappable_reads: str = "False"
     target_bases: int = 30_000_000
 
     #
@@ -78,6 +80,7 @@ class PipelineConfig:
 def build_config(args):
 
     return PipelineConfig(
+        version=__version__,
         input_path=args.input,
         output_dir=args.output,
         reference_sequences=args.references,
@@ -121,6 +124,12 @@ def parse_arguments():
     #
     # Required arguments
     #
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}"
+    )
 
     parser.add_argument(
         "--input",
@@ -303,10 +312,12 @@ def parse_arguments():
     
     parser.add_argument(
         "--export_unmappable_reads",
-        action="store_true",
+        type=str,
+        choices=["False", "fasta", "fastq"],
+        default="False",
         help=(
         "If reads can't be mapped, they will be "
-        "written to a new fastq file." 
+        "written to a new fasta or fastq file." 
         )
     )
 

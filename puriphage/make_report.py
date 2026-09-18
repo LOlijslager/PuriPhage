@@ -62,7 +62,7 @@ def write_run_metadata(config, output_file):
         fcntl.flock(file, fcntl.LOCK_EX) #Lock file so array jobs don't simultaneously write
 
         file.write(
-            "Phage purification pipeline\n"
+            "PuriPhage analysis metadata\n"
         )
 
         file.write(
@@ -250,6 +250,8 @@ def initialise_prophage_summary(output_file, delete_old_files):
             file.write(
                 "Sample\t"
                 "Prophage\t"
+                "Prophage_read_count\t"
+                "NonProphageHost_read_count\t"
                 "Prophage_coverage\t"
                 "NonProphageHost_coverage\t"
                 "Total_host_coverage\t"
@@ -264,6 +266,8 @@ def append_prophage_summary(
     output_file,
     sample_name,
     prophage_name,
+    prophage_read_total,
+    non_prophage_host_read_total,
     prophage_coverage,
     coverage_non_prophage_host,
     host_coverage,
@@ -280,6 +284,8 @@ def append_prophage_summary(
         file.write(
                 f"{sample_name}\t"
                 f"{prophage_name}\t"
+                f"{prophage_read_total}\t"
+                f"{non_prophage_host_read_total}\t"
                 f"{prophage_coverage:.2f}\t"
                 f"{coverage_non_prophage_host:.2f}\t"
                 f"{host_coverage:.2f}\t"

@@ -115,10 +115,10 @@ def run_metaflye(
     if not os.path.isfile(assembly_file):
 
         command = (
-            f"flye "
+            "flye "
             f"--nano-hq {input_fastq} "
             f"--out-dir {output_dir} "
-            f"--meta "
+            "--meta "
             f"--threads {threads}"
         )
 
@@ -225,6 +225,7 @@ def get_assemblies_of_interest(
 
         elif "components" in filename:
             assembly_type = "undetermined"
+            continue
 
         else:
             assembly_type = "unknown"
@@ -244,8 +245,12 @@ def get_assemblies_of_interest(
                 f"assembly_{i}"
             )
 
-            assembly_coverage = assembly_meta_dict[record.id][0]
-            assembly_length = assembly_meta_dict[record.id][1]
+            try:
+                assembly_coverage = assembly_meta_dict[record.id][0]
+                assembly_length = assembly_meta_dict[record.id][1]
+            except:
+                assembly_length = len(record.seq)
+                assembly_coverage = "N.A."
 
             record.id = assembly_name
             record.description = ""

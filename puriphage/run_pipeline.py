@@ -15,7 +15,11 @@ from tempfile import TemporaryDirectory
 import os
 import csv
 
-from .read_preprocessing import preprocess_reads
+from .read_preprocessing import (
+    preprocess_reads,
+    filter_file_by_read_id
+    )
+
 from .logging_utils import setup_logging
 
 from .make_viralFlye_assembly import (
@@ -31,7 +35,6 @@ from .run_blast import (
 from .analyse_results import (
     count_hits,
     process_expected_or_best_phage,
-    filter_file_by_read_id
 )
 
 from .make_report import (
@@ -138,7 +141,7 @@ def run_pipeline(config):
                 )
             else:
                 expected_phage = None
-            if metadata.get("host") != "": 
+            if metadata.get("host") != "":  
                 supplied_host = metadata.get("host")
                 logger.info(
                     "Using host: %s",
@@ -407,7 +410,7 @@ def run_pipeline(config):
 
                     merged_results.update(blast_results)
 
-                counter, bp_number_dict, unmappable_reads, suspected_phage_numbers = count_hits( #TODO: does unmappable reads do anything?
+                counter, bp_number_dict, unmappable_reads, suspected_phage_numbers = count_hits(
                     merged_results,
                     phage_assembly,
                     host_list,
@@ -423,19 +426,20 @@ def run_pipeline(config):
                     sample_name,
                 )
 
-                if config.export_unmappable_reads:
+                if config.export_unmappable_reads != "False":
                     filter_file_by_read_id(
                         directories["unmappable_reads"],
-                        assembly_fastq,
-                        unmappable_reads
+                        sample_name,
+                        sample["input_path"],
+                        unmappable_reads,
+                        config.export_unmappable_reads #if not "False", then matches output file format
                         )
                     
                     logger.info(
-                    "Unmappable reads written to %s",
+                    "%i unmappable reads written to %s",
+                    len(unmappable_reads),
                     str(directories["unmappable_reads"])
                     )
-
-                
 
                 append_purity_summary(
                     report_files["purity_summary"],
@@ -478,7 +482,7 @@ def create_directories(output_dir,export_unmappable_reads):
         "logs": output_dir / "logs",
     }
 
-    if export_unmappable_reads:
+    if export_unmappable_reads != "False":
         directories["unmappable_reads"] = output_dir / "unmappable_reads"
 
     for directory in directories.values():

@@ -19,6 +19,7 @@ Processing steps:
 from pathlib import Path
 import gzip
 import statistics
+import os
 
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -134,8 +135,9 @@ def preprocess_reads(
     total_mapping_bases = 0
 
     filtered_by_length = 0
-    filtered_by_barcode = 0
     filtered_by_quality = 0
+    filtered_as_chimera = 0
+    filtered_as_palindrome = 0
 
     output_directory = Path(output_directory)
     output_directory.mkdir(exist_ok=True)
@@ -146,21 +148,46 @@ def preprocess_reads(
     assembly_fastq = output_directory / f"{sample_name}.fastq"
 
     fastq_files = find_fastq_files(input_path)
-
-    with open(assembly_fastq, "w") as assembly_handle:
-
+    
+    assembly_handle = None
+    try:
         for fastq_file in fastq_files:
 
             fasta_file = (
                 fasta_directory
                 / f"{fastq_file.stem.replace('.fastq', '')}.fasta"
             )
+            
+            fasta_handle = None
 
-            with open(fasta_file, "w") as fasta_handle:
+            try:
 
                 with open_fastq_file(fastq_file) as input_handle:
 
-                    for record in SeqIO.parse(input_handle, "fastq"):
+                    for record in SeqIO.parse(
+                        input_handle,
+                        "fastq"
+                    ):
+                        #
+                        # Stop once both outputs have reached
+                        # their target sizes.
+                        #                        
+
+                        assembly_limit_reached = (
+                            enable_downsampling
+                            and total_assembly_bases >= target_bases
+                        )
+
+                        mapping_limit_reached = (
+                            enable_downsampling
+                            and total_mapping_bases >= target_bases
+                        )
+
+                        if (
+                            assembly_limit_reached
+                            and mapping_limit_reached
+                        ):
+                            break
 
                         total_reads += 1
 
@@ -207,8 +234,18 @@ def preprocess_reads(
                             )
 
                             if contains_barcode:
-                                filtered_by_barcode += 1
+                                filtered_as_chimera += 1
                                 continue
+                            
+                        #
+                        # Palindrome detection
+                        #
+                        # Filter out (likely PCR) artifacts in
+                        # the form of perfectly palindromic reads.
+
+                        if detect_palindrome(inspection_sequence): 
+                            filtered_as_palindrome += 1
+                            continue
 
                         #
                         # =================================
@@ -224,15 +261,16 @@ def preprocess_reads(
                             quality_scores
                         )
 
-                        assembly_limit_reached = (
-                            enable_downsampling
-                            and total_assembly_bases >= target_bases
-                        )
-
                         if (
                             median_qscore >= min_qscore
                             and not assembly_limit_reached
                         ):
+
+                            if assembly_handle is None:
+                                assembly_handle = open(
+                                    assembly_fastq,
+                                    "w"
+                                )
 
                             SeqIO.write(
                                 record,
@@ -241,7 +279,9 @@ def preprocess_reads(
                             )
 
                             assembly_reads += 1
-                            total_assembly_bases += len(sequence)
+                            total_assembly_bases += len(
+                                sequence
+                            )
 
                         #
                         # =================================
@@ -254,12 +294,18 @@ def preprocess_reads(
 
                         if terminal_trim_bp > 0:
                             trimmed_sequence = sequence[
-                                terminal_trim_bp:-terminal_trim_bp
+                                terminal_trim_bp:
+                                -terminal_trim_bp
                             ]
-                            trimmed_qualities = quality_scores[
-                                terminal_trim_bp:-terminal_trim_bp
-                            ]
+
+                            trimmed_qualities = (
+                                quality_scores[
+                                    terminal_trim_bp:
+                                    -terminal_trim_bp
+                                ]
+                            )
                         else:
+                            
                             trimmed_sequence = sequence
                             trimmed_qualities = quality_scores
 
@@ -268,22 +314,23 @@ def preprocess_reads(
                             q >= min_qscore
                             for q in trimmed_qualities
                         )
-                        
-                        mapping_limit_reached = (
-                            enable_downsampling
-                            and total_mapping_bases >= target_bases
-                        )
 
                         percent_high_quality = (
                             100
                             * high_quality_bases
                             / len(trimmed_qualities)
                         )
+                        
 
                         if (
-                            median_qscore >= min_qscore
-                            and not assembly_limit_reached
+                            percent_high_quality >= min_percent_identity
+                            and not mapping_limit_reached
                         ):
+                            if fasta_handle is None:
+                                fasta_handle = open(
+                                    fasta_file,
+                                    "w"
+                                )
 
                             fasta_record = SeqRecord(
                                 trimmed_sequence,
@@ -300,9 +347,45 @@ def preprocess_reads(
                             mapping_reads += 1
                             total_mapping_bases += len(trimmed_sequence)
                             
-                        elif median_qscore >= min_qscore:
+                        elif (
+                            percent_high_quality < min_percent_identity
+                            and not mapping_limit_reached
+                        ):
                             
                             filtered_by_quality += 1
+            except ValueError:
+                logger.error("Corrupted FASTQ file detected.")
+                
+            finally:
+
+                if fasta_handle is not None:
+                    fasta_handle.close()
+                
+            #
+            # If both targets have been reached,
+            # stop processing additional FASTQ files.
+            #
+
+            assembly_limit_reached = (
+                enable_downsampling
+                and total_assembly_bases >= target_bases
+            )
+
+            mapping_limit_reached = (
+                enable_downsampling
+                and total_mapping_bases >= target_bases
+            )
+
+            if (
+                assembly_limit_reached
+                and mapping_limit_reached
+            ):
+                break
+    
+    finally:
+
+        if assembly_handle is not None:
+            assembly_handle.close()
 
     logger.info(
         "Read preprocessing summary"
@@ -339,8 +422,13 @@ def preprocess_reads(
     )
 
     logger.info(
-        "Rejected (barcode): %s",
-        f"{filtered_by_barcode:,}",
+        "Rejected (chimera): %s",
+        f"{filtered_as_chimera:,}",
+    )
+
+    logger.info(
+        "Rejected (palindrome): %s",
+        f"{filtered_as_palindrome:,}",
     )
 
     logger.info(
@@ -358,3 +446,119 @@ def preprocess_reads(
         mapping_reads,
         total_mapping_bases
     )
+
+
+from Bio.Seq import Seq
+from Bio import Align
+
+
+# Create the aligner once, outside the function
+aligner = Align.PairwiseAligner(
+    mode="global",
+    match_score=1,
+    mismatch_score=-1,
+    open_gap_score=-2,
+    extend_gap_score=-0.5,
+)
+
+
+def detect_palindrome(seq,
+                      k=15,
+                      min_kmer_frac=0.2,
+                      min_identity=0.85):
+    """
+    Detect foldback palindrome reads of the form:
+
+        A -> B -> C -> C' -> B' -> A'
+
+    Parameters
+    ----------
+    record : SeqRecord
+        Biopython FASTQ/FASTA record.
+
+    k : int
+        Kmer size for rapid screening.
+
+    min_kmer_frac : float
+        Fraction of kmers that must overlap before alignment is attempted.
+
+    min_identity : float
+        Alignment identity threshold.
+
+    Returns
+    -------
+    bool
+        True if likely palindrome, False otherwise.
+    """
+
+    mid = len(seq) // 2
+
+    left = seq[:mid]
+    right_rc = str(Seq(seq[mid:]).reverse_complement())
+
+    # ---------
+    # FAST KMER SCREEN
+    # ---------
+
+    def kmers(s):
+        return {
+            s[i:i+k]
+            for i in range(len(s) - k + 1)
+        }
+
+    k1 = kmers(left)
+    k2 = kmers(right_rc)
+
+    if not k1 or not k2:
+        return False
+
+    kmer_similarity = len(k1 & k2) / min(len(k1), len(k2))
+
+    if kmer_similarity < min_kmer_frac:
+        return False
+
+    # ---------
+    # ALIGNMENT
+    # ---------
+
+    score = aligner.score(left, right_rc)
+
+    max_score = min(len(left), len(right_rc))
+
+    identity = score / max_score
+
+    return identity >= min_identity
+
+def filter_file_by_read_id(
+    outdir,
+    sample_name,
+    raw_data_path,
+    unmappable_reads,
+    file_format
+):
+    """
+    Export unmappable reads to a FASTQ or FASTA file.
+    """
+
+    fastq_files = find_fastq_files(raw_data_path)
+
+    output_file = os.path.join(
+        outdir,
+        f"{sample_name}_unmappable_reads.{file_format}"
+    )
+
+    with open(output_file, "w") as outfile:
+
+        for fastq_file in fastq_files:
+            with open_fastq_file(fastq_file) as input_handle:
+                for record in SeqIO.parse(
+                    input_handle,
+                    "fastq"
+                ):
+
+                    if record.id in unmappable_reads:
+                        SeqIO.write(
+                            record,
+                            outfile,
+                            file_format,
+                        )

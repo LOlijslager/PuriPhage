@@ -96,45 +96,52 @@ usage: PuriPhage.py [-h] --input INPUT [--output OUTPUT] [--references REFERENCE
                     [--terminal-trim-bp TERMINAL_TRIM_BP] [--disable-barcode-filtering] [--enable-downsampling] [--target-bases TARGET_BASES] [--viralflye-completeness VIRALFLYE_COMPLETENESS]
                     [--threads THREADS] [--export_unmappable_reads] [--troubleshooting] [--force]
 
-Phage purification pipeline
+Pipeline for phage assembly and purity evaluation.
 
 options:
-  -h, --help            show this help message and exit
-  --input INPUT         Input FASTQ file (.fastq or .fastq.gz), a directory containing FASTQ files for a single sample, or a directory containing one subdirectory per sample.
-  --output OUTPUT       Output directory (Default: output).
-  --references REFERENCES
-                        Reference sequence directory containing 'Phage' 'Host' and 'Prophage' subdirectories with FASTA files (default: input_sequences )
-  --sample-metadata SAMPLE_METADATA
-                        Optional TSV file containing sample information. Required columns: Sample, Phage, Host. Phage and Host names must match corresponding filenames in the reference database.
+options:                                                                                                                                                         
+  -h, --help            show this help message and exit                                                                                                          
+  --version             show program's version number and exit                                                                                                   
+  --input INPUT         Input FASTQ file (.fastq or .fastq.gz), a directory containing FASTQ files for a single sample, or a directory containing one            
+                        subdirectory per sample.                                                                                                                 
+  --output OUTPUT       Output directory (Default: output).                                                                                                      
+  --references REFERENCES                                                                                                                                        
+                        Reference sequence directory containing 'Phage' 'Host' and 'Prophage' subdirectories with FASTA files (default: reference_data )         
+  --sample-metadata SAMPLE_METADATA                                                                                                                              
+                        Optional TSV file containing sample information. Required columns: Sample, Phage, Host. Phage and Host names must match corresponding
+                        filenames in the reference database.
   --blast-exe BLAST_EXE
-                        Path to blastn executable.
-  --makeblastdb-exe MAKEBLASTDB_EXE
-                        Path to makeblastdb executable.
-  --viralflye-hmm-db VIRALFLYE_HMM_DB
-                        Path to viralFlye HMM database
-  --mode {full,purity,assembly}
-                        Pipeline mode (default: full). In purity mode, assembly and assembly comparison are skipped and only read mapping against the reference database is performed. In Assembly mode,
-                        mapping against the reference database is skipped.
-  --min-read-length MIN_READ_LENGTH
-                        Default: 1000
-  --min-qscore MIN_QSCORE
-                        Default: 20
+                        Path to blastn executable.                                                                                                            
+  --makeblastdb-exe MAKEBLASTDB_EXE                                                                                                                              
+                        Path to makeblastdb executable.                                                                                                          
+  --viralflye-hmm-db VIRALFLYE_HMM_DB                                                                                                                            
+                        Path to the Pfam HMM database (default: /hpc/dla_mm/lolijslager/data/PuriPhage/Pfam-A.hmm.gz)                                            
+  --mode {full,purity,assembly}                                                                                                                                  
+                        Pipeline mode (default: full). In purity mode, assembly and assembly comparison are skipped and only read mapping against the reference  
+                        database is performed. In Assembly mode, mapping against the reference database is skipped.                                              
+  --min-read-length MIN_READ_LENGTH                                                                                                                              
+                        Default: 1000                                                                                                                            
+  --min-qscore MIN_QSCORE                                                                                                                                        
+                        Default: 20                                                                                                                              
   --min-percent-identity MIN_PERCENT_IDENTITY
-                        Minimum percent identity required for a hit to be accepted (default: 98). This is defined as by how much of the read is explained by a reference sequence.
+                        Minimum percent identity required for a hit to be accepted (default: 98). This is defined as by how much of the read is explained by a  
+                        reference sequence.
   --terminal-trim-bp TERMINAL_TRIM_BP
-                        Number of bases removed from both ends of each read prior to barcode detection and read mapping. Read ends are often lower quality than the rest of the sequence. Default: 100.
+                        Number of bases removed from both ends of each read prior to barcode detection and read mapping. Read ends are often lower quality than 
+                        the rest of the sequence. Default: 100.
   --disable-barcode-filtering
-                        Disable barcode/chimera filtering. Internal barcode sequences are normally treated as evidence of chimeric reads caused by PCR artefacts or sequencing errors. Disable this option
-                        if a barcode sequence is genuinely expected within the phage genome.
+                        Disable barcode/chimera filtering. Internal barcode sequences are normally treated as evidence of chimeric reads caused by PCR          
+                        artefacts or sequencing errors. Disable this option if a barcode sequence is genuinely expected within the phage genome.                
   --enable-downsampling
-                        Downsample reads used. This can reduce assembly time and may improve assembly success for very high-coverage datasets or prevent memory issues.
+                        Downsample reads used. This can reduce assembly time and may improve assembly success for very high-coverage datasets or prevent memory 
+                        issues.
   --target-bases TARGET_BASES
-                        Target number of bases retained after downsampling for assembly (default: 30,000,000).
+                        Target number of bases retained after downsampling for assembly (default: 30,000,000).                                                  
   --viralflye-completeness VIRALFLYE_COMPLETENESS
-                        See the viralFlye --completeness parameter (default: 0.01).
+                        See the viralFlye --completeness parameter (default: 0.01).                                                                             
   --threads THREADS     Default: 1
-  --export_unmappable_reads
-                        If reads can't be mapped, they will be written to a new fastq file.
+  --export_unmappable_reads {False,fasta,fastq}
+                        If reads can't be mapped, they will be written to a new fasta or fastq file.
   --troubleshooting     Enable detailed logging and display external commands used during pipeline execution.
   --force               Overwrite existing summary files. Will not delete assemblies. Not compatible with HPC array jobs.
 ```

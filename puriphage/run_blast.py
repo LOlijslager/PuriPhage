@@ -91,7 +91,8 @@ def create_reference_database(
 
                         if directory == "Phage":
 
-                            sequence_lengths["Phage"][record.id] = len(record.seq)
+                            sequence_lengths["Phage"].setdefault(record.id, 0)
+                            sequence_lengths["Phage"][record.id] += len(record.seq)
                             phage_list.add(record.id)
 
                         elif directory == "Prophage":
@@ -111,7 +112,8 @@ def create_reference_database(
                     elif directory == "Host":
 
                         host_list.add(record.id)
-                        sequence_lengths["Host"][record.id] = len(record.seq)
+                        sequence_lengths["Host"].setdefault(record.id, 0)
+                        sequence_lengths["Host"][record.id] += len(record.seq) #In case it consists out of multiple contigs
 
                     SeqIO.write(
                         record,
