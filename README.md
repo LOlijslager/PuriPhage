@@ -115,7 +115,7 @@ options:
   --makeblastdb-exe MAKEBLASTDB_EXE                                                                                                                              
                         Path to makeblastdb executable.                                                                                                          
   --viralflye-hmm-db VIRALFLYE_HMM_DB                                                                                                                            
-                        Path to the Pfam HMM database (default: /hpc/dla_mm/lolijslager/data/PuriPhage/Pfam-A.hmm.gz)                                            
+                        Path to the Pfam HMM database (default: /path/to/PuriPhage/Pfam-A.hmm.gz)                                            
   --mode {full,purity,assembly}                                                                                                                                  
                         Pipeline mode (default: full). In purity mode, assembly and assembly comparison are skipped and only read mapping against the reference  
                         database is performed. In Assembly mode, mapping against the reference database is skipped.                                              
